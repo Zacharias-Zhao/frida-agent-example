@@ -17,7 +17,6 @@ function main() {
             Java.openClassFile("/data/local/tmp/r0gson.dex").load();
             const gson = Java.use('com.r0ysue.gson.Gson');
             console.log("x" + gson.$new().toJson(x));
-
             console.log("ret_value:" + ret_value);
             return ret_value
         };
@@ -36,12 +35,12 @@ function main() {
         // 构造java数组
         var Arrays = Java.use("java.util.Arrays");
         Arrays.toString.overload('[C').implementation = function (x) {
-            var ret_value = this.toString(newCharArray);
+            var ret_value = this.toString(x);
             console.log('x:' + x);
             console.log("ret_value:" + ret_value);
-            console.log('newR:' + newR);
             var newCharArray = Java.array('char', ['一', '去', '二', '三', '里']);
             var newR = Java.use('java.lang.String').$new(newCharArray);
+            console.log('newR:' + newR);
             return newR
         };
 
