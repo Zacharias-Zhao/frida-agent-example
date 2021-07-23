@@ -1,7 +1,6 @@
 function main() {
     Java.perform(function x() {
         console.log("java perform");
-
         var Character = Java.use("java.lang.Character");
         Character.toString.overload('char').implementation = function (x) {
             console.log("x:" + x);
@@ -61,23 +60,25 @@ function main() {
         var WaterHandler = Java.cast(JuiceHandler, Java.use('com.r0ysue.a0526printout.Water'));
         console.log('water still :' + WaterHandler.still(WaterHandler));
 
+        /*
+        var WaterHandler = null;
+        Java.choose('com.r0ysue.a0526printout.Water', {
+            onMatch: function (instance) {
+                console.log('fund Water instance');
+                console.log('fund instance call still' + instance.still(instance));
+                WaterHandler = instance;
+            },
+            onComplete: function () {
+                console.log('Water search handler onComplete')
+            }
+        });
+        console.log("save juice handle:" + WaterHandler);
+        // 父类 强转子类
+        // Cast from 'com.r0ysue.a0526printout.Water' to 'com.r0ysue.a0526printout.Juice' isn't possible
+        var JuiceHandler = Java.cast(WaterHandler, Java.use('com.r0ysue.a0526printout.Juice'));
+        console.log('juice fillEnergy :' + JuiceHandler.fillEnergy());
+    */
     });
-    var WaterHandler = null;
-    Java.choose('com.r0ysue.a0526printout.Water', {
-        onMatch: function (instance) {
-            console.log('fund Water instance');
-            console.log('fund instance call still' + instance.still(instance));
-            WaterHandler = instance;
-        },
-        onComplete: function () {
-            console.log('Water search handler onComplete')
-        }
-    });
-    console.log("save juice handle:" + WaterHandler);
-    // 父类 强转子类
-    // Cast from 'com.r0ysue.a0526printout.Water' to 'com.r0ysue.a0526printout.Juice' isn't possible
-    var JuiceHandler = Java.cast(WaterHandler, Java.use('com.r0ysue.a0526printout.Juice'));
-    console.log('juice fillEnergy :' + JuiceHandler.fillEnergy());
 }
 
 function interface88() {
@@ -136,4 +137,4 @@ function map888() {
 
 }
 
-setImmediate(map888);
+setImmediate(main);
