@@ -1,4 +1,4 @@
-// version 10.06.2004
+// version 10.07.2006121636
 // 请求
 function f() {
     Java.perform(function () {
