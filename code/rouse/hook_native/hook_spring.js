@@ -125,11 +125,17 @@ function hook_x9_v2() {
         console.log("so_addr:", so_addr);
 
         var addr_b90 = so_addr.add(0xB90);
+        /*
+        我们知道v29是xsp+0h，而dest是xsp+38h，而dest又作为参数传入了sub_b90，这里我直接hook sub_b90，得到xsp+38h，
+        然后再在v29初始化结束之后输出xsp的值：xsp+38h的地址减去0x38，即可得到v29。
+        sub_B90的参数1为输入明文，点击第一个参数会显示[xsp+38h]
+        */
         var sub_b90 = new NativeFunction(addr_b90, 'int', ['pointer', 'int', 'pointer']);
         Interceptor.attach(sub_b90, {
             onEnter: function (args) {
                 destAddr = args[0];
                 console.log('onEnter B90');
+                console.log(Memory.readCString(destAddr))
             },
             //在hook函数之后执行的语句
             onLeave: function (retval) {
@@ -137,7 +143,7 @@ function hook_x9_v2() {
             }
         });
 
-
+        // v29初始化结束，任何一个地方都行
         var addr_b2c = so_addr.add(0xb2c);
         console.log("The addr_b2c:", addr_b2c);
         Java.perform(function () {
@@ -178,7 +184,7 @@ function hook_D58() {
 
 function main() {
     hook_x9()
-    // hook_D58()
+    hook_D58()
 }
 
 
