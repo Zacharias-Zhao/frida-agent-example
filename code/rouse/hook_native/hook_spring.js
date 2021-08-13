@@ -99,6 +99,24 @@ function hook_x0() {
 }
 
 
+function hook_x9() {
+    // hook寄存器地址，得到对比的正确的base64
+    var libnative_addr = Module.findBaseAddress('libnative-lib.so');
+    console.log("so base address ->", libnative_addr)
+    var addr_0xB30 = libnative_addr.add(0xB30);
+    console.log("addr_0xB30 ->", addr_0xB30)
+    Interceptor.attach(addr_0xB30, {
+        onEnter: function (args) {
+            console.log(Memory.readCString(this.context.x9));
+            // console.log(Memory.readByteArray(this.context.x9, 50));
+            // console.log(hexdump(this.context.x9));
+        },
+        onLeave: function (retval) {
+        }
+    })
+}
+
+
 var destAddr = '';  //定位xsp地址
 
 function hook_x9_v2() {
@@ -133,24 +151,6 @@ function hook_x9_v2() {
 }
 
 
-function hook_x9() {
-    // hook寄存器地址，得到对比的正确的base64
-    var libnative_addr = Module.findBaseAddress('libnative-lib.so');
-    console.log("so base address ->", libnative_addr)
-    var addr_0xB30 = libnative_addr.add(0xB30);
-    console.log("addr_0xB30 ->", addr_0xB30)
-    Interceptor.attach(addr_0xB30, {
-        onEnter: function (args) {
-            console.log(Memory.readCString(this.context.x9));
-            // console.log(Memory.readByteArray(this.context.x9, 50));
-            // console.log(hexdump(this.context.x9));
-        },
-        onLeave: function (retval) {
-        }
-    })
-}
-
-
 function hook_D58() {
     Java.perform(function () {
         var libnative = Module.findBaseAddress("libnative-lib.so");
@@ -160,11 +160,10 @@ function hook_D58() {
         var EOR = libnative.add(0xD58);
         var eor = [];
         var eorlen = 0;
-        send("EOR: " + EOR);
         Interceptor.attach(EOR, {
             onEnter: function (args) {
                 if (ishook) {
-                    if (eorlen < 30) {
+                        if (eorlen < 30) {
                         eor.push(this.context.x12);
                         eorlen += 1;
                     } else {
@@ -177,5 +176,10 @@ function hook_D58() {
     })
 }
 
+function main() {
+    hook_x9()
+    // hook_D58()
+}
 
-setImmediate(hook_x0)
+
+setImmediate(main)
