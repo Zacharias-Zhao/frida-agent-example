@@ -36,7 +36,7 @@ function replace_str() {
     var str_addr = Module.findExportByName("libc.so", "strstr")
     var strstr = new NativeFunction(str_addr, 'pointer', ['pointer', 'pointer']);
     // 方法参数替换
-    Interceptor.replace(strstr, new NativeCallback(function (args1, args2) {
+    Interceptor.replace(str_addr, new NativeCallback(function (args1, args2) {
         var retval = strstr(args1, args2);
         if (Memory.readCString(args2) === "frida") {
             return null;
@@ -59,11 +59,28 @@ function decrypt_str(address) {
 
 function call_function(s) {
     Java.perform(function () {
+        console.log("call function")
         var mainClass = Java.use("com.kanxue.reflectiontest.MainActivity")
         var str = Java.use("java.lang.String").$new(s)
         var result = mainClass.check(str)
         console.log("result", result)
         return result
+    })
+}
+
+function inline_hook() {
+    // hook寄存器地址，得到对比的正确的base64
+    var libnative_addr = Module.findBaseAddress('libnative-lib.so');
+    console.log("so base address ->", libnative_addr)
+    var address_addr = libnative_addr.add(0x12D0 + 1);
+    console.log("address_addr ->", address_addr)
+    Interceptor.attach(address_addr, {
+        onEnter: function (args) {
+            console.log("inline hook inner")
+            console.log(hexdump(this.context.r0));
+        },
+        onLeave: function (retval) {
+        }
     })
 }
 
@@ -91,9 +108,11 @@ function patch_crack() {
 }
 
 function main() {
+    hook_str()
     replace_str()
-    call_function("kanxue00000000000000")
-    decrypt_str(0x5100)
+    inline_hook()
+    call_function("kanxuetrainingcourse")
+    decrypt_str(0x50D0)
 }
 
 setImmediate(main)
