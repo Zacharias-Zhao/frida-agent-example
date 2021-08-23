@@ -18,10 +18,11 @@ function inline_hook() {
     console.log("address_addr ->", address_addr)
     Interceptor.attach(address_addr, {
         onEnter: function (args) {
-            console.log('called from:\n' + Thread.backtrace(this.context, Backtracer.ACCURATE).map(DebugSymbol.fromAddress).join('\n') + '\n');
+            // console.log('called from:\n' + Thread.backtrace(this.context, Backtracer.ACCURATE).map(DebugSymbol.fromAddress).join('\n') + '\n');
             this.args0 = args[0]
             this.args1 = args[1]
             this.args2 = args[2]
+            this.r2 = this.context.r2
             console.log("inline hook inner")
             console.log("args0:\n", hexdump(this.args0));
             console.log("args1:\n", this.args1.toInt32());
@@ -32,6 +33,7 @@ function inline_hook() {
             console.log("args0:\n", hexdump(this.args0));
             console.log("args1:\n", this.args1.toInt32());
             console.log("args2:\n", hexdump(this.args2));
+            console.log("r2:\n", hexdump(this.r2));
         }
     })
 }
