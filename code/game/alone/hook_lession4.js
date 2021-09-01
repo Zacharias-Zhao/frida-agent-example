@@ -15,12 +15,12 @@ function hookxPre() {
 function hook_sub_312E0() {
     var libbili_addr = Module.findBaseAddress('libmfw.so');
     console.log("so base address ->", libbili_addr)
-    var addr_0x1C96 = libbili_addr.add(0x312E0 + 1);
-    console.log("addr_0xB90 ->", addr_0x1C96)
+    var addr_0x312E0 = libbili_addr.add(0x312E0 + 1);
+    console.log("addr_0x312E0 ->", addr_0x312E0)
 
-    Interceptor.attach(addr_0x1C96, {
+    Interceptor.attach(addr_0x312E0, {
         onEnter: function (args) {
-            console.log("calling addr_0x1C96")
+            console.log("calling addr_0x312E0")
             console.log("args0:", hexdump(args[0]))
             // args[1] is buffer/指针 此时为空，用来存储数据
             this.buffer = args[1]
@@ -51,41 +51,16 @@ function call_312E0() {
     FunctionName(args0, args1, args2)
     console.log(hexdump(args1))
 }
+
 /*
 有时候数据不一定看数据的字符串显示, 也可以看中间的数据的hex16进制表示 比如hash算法的结果
 e2e5fd90  ee d6 b5 eb 49 a6 9a fd 01 b6 df 52 9e 5c dd 79  ....I......R.\.y
 e2e5fda0  68 42 72 6e 00 00 00 00 00 00 00 00 00 00 00 00  hBrn............
  */
 
-
-function hook_sub_3151C() {
-    var libbili_addr = Module.findBaseAddress('libmfw.so');
-    console.log("so base address ->", libbili_addr)
-    var addr_0x1C96 = libbili_addr.add(0x3151C + 1);
-    console.log("addr_0xB90 ->", addr_0x1C96)
-
-    Interceptor.attach(addr_0x1C96, {
-        onEnter: function (args) {
-            console.log("calling addr_0x1C96")
-            console.log("args0:", hexdump(args[0]))
-            // args[1] is buffer/指针 此时为空，用来存储数据
-            this.buffer = args[1]
-            console.log("args1:", hexdump(this.buffer))
-        },
-        onLeave: function (retval) {
-            console.log("function is leaving")
-            // buffer 存放结果
-            console.log("args1:", hexdump(this.buffer))
-        }
-    })
-}
-
-
-
-
-function main(){
+function main() {
+    hook_sub_312E0()
     call_312E0()
-    hook_sub_3151C()
 }
 
 setImmediate(main)
