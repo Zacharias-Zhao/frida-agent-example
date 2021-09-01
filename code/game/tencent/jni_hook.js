@@ -123,7 +123,7 @@ function inline_hook() {
     let hook_flag = false;
     let base_addr = Module.getBaseAddress("libpoxy_star.so");
     Interceptor.attach(base_addr.add(0xD9AC).add(1), {
-        onEnter: function(args){
+        onEnter: function (args) {
             hook_flag = true;
             this.hook_jni_interceptor = hook_jni("SetByteArrayRegion");
         },
@@ -137,7 +137,7 @@ function inline_hook() {
 
     Interceptor.attach(base_addr.add(0xAAE88).add(1), {
         onEnter: function (args) {
-            if(hook_flag){
+            if (hook_flag) {
                 console.log(`call sub_AAE88`);
                 this.arg_0 = args[0];
                 console.log("sub_AAE88 arg_0", hexdump(args[0].readPointer()));
@@ -149,7 +149,7 @@ function inline_hook() {
     });
     Interceptor.attach(base_addr.add(0xABDBC).add(1), {
         onEnter: function (args) {
-            if(hook_flag){
+            if (hook_flag) {
                 console.log(`call sub_ABDBC`);
                 this.arg_0 = args[0];
                 console.log("sub_ABDBC arg_0", hexdump(args[0].readPointer()));
@@ -159,6 +159,22 @@ function inline_hook() {
             console.log("sub_ABDBC onLeave arg_0", hexdump(this.arg_0.readPointer()));
         }
     });
+
+    Interceptor.attach(base_addr.add(0xAC214).add(1), {
+        onEnter: function (args) {
+            console.log(`call sub_AC214`);
+            console.log("input", args[1], args[2], args[3], args[4]);
+        }
+    });
+
+    Interceptor.attach(base_addr.add(0xAD1D0).add(1), {
+        onEnter: function (args) {
+            console.log(`call sub_AD1D0`);
+            console.log("input", args[0], args[1], args[2], args[3]);
+            console.log(hexdump(args[2].readByteArray(args[3].toUInt32())));
+        }
+    });
+
 }
 
 freeze_funcs();

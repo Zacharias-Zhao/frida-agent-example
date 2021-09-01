@@ -1,3 +1,13 @@
+function dumpByteArray(obj) {
+    // 使用hex打印java层的byte数组
+    console.log("---------dumpByteArray start---------");
+    let obj_ptr = ptr(obj.$h).readPointer();
+    let buf_ptr = obj_ptr.add(Process.pointerSize * 3);
+    let size = obj_ptr.add(Process.pointerSize * 2).readU32();
+    console.log(hexdump(buf_ptr, {offset: 0, length: size, header: false, ansi: false}));
+    console.log("---------dumpByteArray end---------");
+}
+
 function jhexdump(array) {
     if (!array) return;
     console.log("---------jhexdump start---------");
@@ -8,13 +18,14 @@ function jhexdump(array) {
     console.log("---------jhexdump end---------");
 }
 
-function dumpByteArray(obj) {
-    console.log("---------dumpByteArray start---------");
-    let obj_ptr = ptr(obj.$h).readPointer();
-    let buf_ptr = obj_ptr.add(Process.pointerSize * 3);
-    let size = obj_ptr.add(Process.pointerSize * 2).readU32();
-    console.log(hexdump(buf_ptr, {offset: 0, length: size, header: false, ansi: false}));
-    console.log("---------dumpByteArray end---------");
+function jbhexdump(array) {
+    console.log("---------jbhexdump start---------");
+    let env = Java.vm.getEnv();
+    let size = env.getArrayLength(array);
+    let data = env.getByteArrayElements(array, 0);
+    console.log(hexdump(data, {offset: 0, length: size, header: false, ansi: false}));
+    env.releaseByteArrayElements(array, data, 0);
+    console.log("---------jbhexdump end---------");
 }
 
 function getByte_LogArgs() {
@@ -27,9 +38,10 @@ function getByte_LogArgs() {
             console.log("obj2", obj2.$className, gson.$new().toJson(obj2))
             console.log("obj3", obj3.$className, gson.$new().toJson(obj3))
             console.log("obj4", obj4.$className, gson.$new().toJson(obj4))
-            dumpByteArray(obj4);
+            dumpByteArray(obj4)
             let resp = this.getByte(context, num1, num2, num3, num4, obj1, obj2, obj3, obj4)
-            jhexdump(resp);
+            // hexdump [object, objectc]
+            console.log(hexdump(resp.readPointer()))
             return resp
         }
     })
@@ -51,6 +63,7 @@ function freeze_funcs() {
         },
         onLeave: function (retval) {
             this.tm_ptr.writeLong(tm_s);
+            // 0x4? why
             this.tm_ptr.add(0x4).writeLong(tm_us);
         }
     });
@@ -84,27 +97,17 @@ function call_getByte() {
         let obj4 = Java.array('B', [49, 54, 50, 54, 52, 48, 51, 53, 53, 49, 44, 110, 48, 48, 51, 57, 101, 121, 49, 109, 109, 100, 44, 110, 117, 108, 108]);
         let ByteDataIns = ByteDataCls.getInstance()
         let byte = ByteDataIns.getByte(ctx, num_1, num_2, num_3, num_4, obj1, obj2, obj3, obj4);
-        jhexdump(byte)
+        // jhexdump(byte)
         Interceptor.detachAll();
     })
 }
 
-function jbhexdump(array) {
-    console.log("---------jbhexdump start---------");
-    let env = Java.vm.getEnv();
-    let size = env.getArrayLength(array);
-    let data = env.getByteArrayElements(array);
-    console.log(hexdump(data, {offset: 0, length: size, header: false, ansi: false}));
-    env.releaseByteArrayElements(array, data, 0);
-    console.log("---------jbhexdump end---------");
-}
-
-function inline_hook(){
+function inline_hook() {
     let base_addr = Module.getBaseAddress("libpoxy_star.so");
     Interceptor.attach(base_addr.add(0xD9AC).add(1), {
         onLeave: function (retval) {
             console.log(`onLeave sub_D9AC`);
-            jbhexdump(retval);
+            jbhexdump(retval)
         }
     });
 }
@@ -115,4 +118,4 @@ function main() {
     call_getByte()
 }
 
-setImmediate(main)
+setImmediate(main);
