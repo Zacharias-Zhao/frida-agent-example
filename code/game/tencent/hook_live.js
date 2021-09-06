@@ -28,6 +28,12 @@ function jbhexdump(array) {
     console.log("---------jbhexdump end---------");
 }
 
+/*
+obj1 [Ljava.lang.String; ["dl_10303","1","b4d0323d0a3011ec89cd6c92bf48bcb2","getCKey","0107307d9ff8d2b053b9cc01100013e1581f","1630484458189","","8.3.95.26016","com.tencent.qqlive"]
+obj2 java.lang.String ""
+obj3 java.lang.String "b4d0323d0a3011ec89cd6c92bf48bcb2"
+obj4 [B [49,54,51,48,52,56,52,52,53,56,44,120,48,50,54,54,51,49,106,110,108,109,44,110,117,108,108]
+ */
 function getByte_LogArgs() {
     Java.perform(function () {
         let gson = Java.use('com.google.gson.Gson');
@@ -41,7 +47,7 @@ function getByte_LogArgs() {
             dumpByteArray(obj4)
             let resp = this.getByte(context, num1, num2, num3, num4, obj1, obj2, obj3, obj4)
             // hexdump [object, objectc]
-            console.log(hexdump(resp.readPointer()))
+            jhexdump(resp)
             return resp
         }
     })
